@@ -1,0 +1,3 @@
+.not-found-page{position:fixed!important;inset:0!important;width:100vw!important;min-width:100vw!important;display:flex!important;align-items:center!important;justify-content:center!important;margin:0!important}
+.not-found-content{width:calc(100% - 40px)!important;max-width:560px!important;min-width:0;margin-inline:auto!important;transform:none!important}
+@media(max-width:480px){.not-found-content{width:calc(100% - 32px)!important}.not-found-content h1{font-size:39px}.not-found-content>p:not(.eyebrow){font-size:12px}}

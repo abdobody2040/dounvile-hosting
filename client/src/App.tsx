@@ -5,12 +5,29 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Discovery from "./pages/Discovery";
+import Order from "./pages/Order";
+import Account from "./pages/Account";
+import Admin from "./pages/Admin";
+
+const DomainsRoute = () => <Discovery />;
+const HostingRoute = () => <Discovery type="hosting" />;
+const ServicesRoute = () => <Discovery type="service" />;
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/domains"} component={DomainsRoute} />
+      <Route path={"/hosting"} component={HostingRoute} />
+      <Route path={"/vps"} component={ServicesRoute} />
+      <Route path={"/servers"} component={ServicesRoute} />
+      <Route path={"/email"} component={ServicesRoute} />
+      <Route path={"/security"} component={ServicesRoute} />
+      <Route path={"/order"} component={Order} />
+      <Route path={"/account"} component={Account} />
+      <Route path={"/admin"} component={Admin} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -27,7 +44,7 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider
-        defaultTheme="light"
+        defaultTheme="dark"
         // switchable
       >
         <TooltipProvider>
