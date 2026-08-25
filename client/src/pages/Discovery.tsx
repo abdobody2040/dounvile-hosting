@@ -8,8 +8,10 @@ import "./discovery.css";
 
 export default function Discovery({ type = "domains" }: { type?: "domains" | "hosting" | "service" }) {
   const [location] = useLocation();
-  const parameter = useMemo(() => new URLSearchParams(location.split("?")[1] || "").get("name") || "mybrand", [location]);
-  const domainSearch = trpc.catalog.domainSearch.useQuery({ label: parameter }, { enabled: type === "domains" });
+  const queryParams = useMemo(() => new URLSearchParams(location.split("?")[1] || ""), [location]);
+  const parameter = queryParams.get("name") || "mybrand";
+  const tld = queryParams.get("tld") || ".com";
+  const domainSearch = trpc.catalog.domainSearch.useQuery({ label: parameter, tlds: [tld] }, { enabled: type === "domains" });
   if (type === "hosting") return <HostingPage />;
   if (type === "service") return <ServicePage />;
   const availability = domainSearch.data?.results.find((item) => item.availability === "available");
@@ -17,7 +19,7 @@ export default function Discovery({ type = "domains" }: { type?: "domains" | "ho
   return <PublicLayout>
     <main className="discovery-page">
       <section className="subhero"><div className="container"><p className="eyebrow">ابدأ بالهوية</p><h1>اسمك يستحق<br /><em>مكانًا يلمع فيه.</em></h1><p>ابحث عن النطاق الذي يجعل حضورك الرقمي واضحًا ولا يُنسى.</p><DomainSearch large initialValue={parameter === "مشروعي" ? "" : parameter} /></div></section>
-      <section className="section"><div className="container availability-panel"><div className="availability-title"><CircleCheckBig /><div><span>نتائج البحث عن</span><h2><bdi>{parameter}.com</bdi></h2></div></div><span className="available-label">{availabilityTitle}</span></div></section>
+      <section className="section"><div className="container availability-panel"><div className="availability-title"><CircleCheckBig /><div><span>نتائج البحث عن</span><h2><bdi>{parameter}{tld}</bdi></h2></div></div><span className="available-label">{availabilityTitle}</span></div></section>
       <section className="container result-list section-tight">
         {domainSearch.isLoading && <div className="domain-query-state">نبحث بأمان في سجل النطاقات…</div>}
         {domainSearch.isError && <div className="domain-query-state error">تعذر الاتصال بخدمة التحقق. جرّب اسمًا آخر أو أعد المحاولة.</div>}

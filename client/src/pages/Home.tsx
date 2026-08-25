@@ -2,12 +2,13 @@ import { DomainSearch } from "@/components/DomainSearch";
 import { PublicLayout } from "@/components/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowUpLeft, BadgeCheck, Check, Cloud, Cpu, Globe2, Headphones, LockKeyhole, Server, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { useState } from "react";
 import { Link } from "wouter";
 
 const plans = [
-  { name: "Start", price: "2.99", note: "لكل بداية بسيطة", features: ["موقع واحد", "10GB SSD NVMe", "نطاق مجاني لسنة", "SSL مجاني"], action: "ابدأ صغيرًا" },
-  { name: "Pro", price: "5.99", note: "الأكثر اختيارًا", features: ["10 مواقع", "50GB SSD NVMe", "زيارات بلا حدود", "نسخ احتياطي يومي", "دعم أولوية"], action: "اختر Pro", featured: true },
-  { name: "Business", price: "9.99", note: "للمتاجر والفرق", features: ["مواقع بلا حدود", "100GB SSD NVMe", "بريد أعمال", "جدار حماية متقدم", "بيئة staging"], action: "ابنِ بثقة" },
+  { name: "Start", monthlyPrice: 2.99, note: "لكل بداية بسيطة", features: ["موقع واحد", "10GB SSD NVMe", "نطاق مجاني لسنة", "SSL مجاني"], action: "ابدأ صغيرًا" },
+  { name: "Pro", monthlyPrice: 5.99, note: "الأكثر اختيارًا", features: ["10 مواقع", "50GB SSD NVMe", "زيارات بلا حدود", "نسخ احتياطي يومي", "دعم أولوية"], action: "اختر Pro", featured: true },
+  { name: "Business", monthlyPrice: 9.99, note: "للمتاجر والفرق", features: ["مواقع بلا حدود", "100GB SSD NVMe", "بريد أعمال", "جدار حماية متقدم", "بيئة staging"], action: "ابنِ بثقة" },
 ];
 
 const assurance = [
@@ -17,6 +18,7 @@ const assurance = [
 ];
 
 export default function Home() {
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   return (
     <PublicLayout>
       <main>
@@ -33,6 +35,7 @@ export default function Home() {
               </div>
               <DomainSearch large />
               <div className="popular-tlds"><span>شائع:</span><b>.com</b><b>.net</b><b>.org</b><b>.io</b><b>.ai</b></div>
+              <div className="hero-utility"><span><i /> يبدأ كل شيء باسم واضح وخطة قابلة للتوسع</span><Link href="/hosting">استكشف الخطط <ArrowLeft size={15} /></Link></div>
             </div>
             <ServerWorld />
           </div>
@@ -52,10 +55,13 @@ export default function Home() {
             <p className="eyebrow">استضافة تنمو معك</p>
             <h2>اختر الإيقاع المناسب لمشروعك.</h2>
             <p>خطط مباشرة وشفافة، تبدأ بما تحتاجه اليوم وتمنحك مساحة حقيقية للغد.</p>
-            <div className="billing-switch"><button className="active">شهري</button><button>سنوي <small>وفّر حتى 40%</small></button></div>
+            <div className="billing-switch" role="group" aria-label="دورة الدفع">
+              <button className={billingCycle === "monthly" ? "active" : ""} onClick={() => setBillingCycle("monthly")} aria-pressed={billingCycle === "monthly"}>شهري</button>
+              <button className={billingCycle === "yearly" ? "active" : ""} onClick={() => setBillingCycle("yearly")} aria-pressed={billingCycle === "yearly"}>سنوي <small>وفّر 32%</small></button>
+            </div>
           </div>
           <div className="container plan-grid">
-            {plans.map((plan) => <PlanCard key={plan.name} {...plan} />)}
+            {plans.map((plan) => <PlanCard key={plan.name} {...plan} billingCycle={billingCycle} />)}
           </div>
           <div className="container plan-footnote"><span><Check /> ضمان استرداد 30 يومًا</span><span><Check /> بدون رسوم مفاجئة</span><span><Check /> ترحيل مجاني</span></div>
         </section>
@@ -114,11 +120,13 @@ export default function Home() {
   );
 }
 
-function PlanCard({ name, price, note, features, action, featured = false }: { name: string; price: string; note: string; features: string[]; action: string; featured?: boolean }) {
+function PlanCard({ name, monthlyPrice, note, features, action, featured = false, billingCycle }: { name: string; monthlyPrice: number; note: string; features: string[]; action: string; featured?: boolean; billingCycle: "monthly" | "yearly" }) {
+  const price = billingCycle === "monthly" ? monthlyPrice : monthlyPrice * 0.68;
   return <article className={`plan-card ${featured ? "featured" : ""}`}>
     {featured && <div className="popular-ribbon">الخيار المفضل</div>}
     <p className="plan-name">Dounvile <b>{name}</b></p><p className="plan-note">{note}</p>
-    <div className="plan-price"><strong>${price}</strong><span>/ شهريًا</span></div>
+    <div className="plan-price"><strong>${price.toFixed(2)}</strong><span>/ شهريًا</span></div>
+    {billingCycle === "yearly" && <span className="annual-note">يُدفع سنويًا — وفّر 32%</span>}
     <div className="plan-rule" />
     <ul>{features.map((feature) => <li key={feature}><Check size={16} /> {feature}</li>)}</ul>
     <Link href={`/order?plan=${name.toLowerCase()}`} className={`button plan-action ${featured ? "neon-button" : "dark-button"}`}>{action}</Link>

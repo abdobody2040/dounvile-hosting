@@ -4,6 +4,8 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import "./refinement.css";
+import "./interactions.css";
 import Home from "./pages/Home";
 import Discovery from "./pages/Discovery";
 import Order from "./pages/Order";
