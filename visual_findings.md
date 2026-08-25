@@ -27,3 +27,5 @@ The open-state verification confirms that the side drawer now covers the expecte
 The edge-swipe refinement preserves the clean closed mobile hero and the full open drawer presentation. The narrow right-edge affordance is intentionally subdued, while automated threshold checks distinguish horizontal intentional swipes from short or vertical scrolling gestures.
 
 The final swipe verification preserves both closed and open mobile states. A DOM-based pointer test now confirms that an intentional edge swipe opens the actual dialog, a committed rightward drag closes it, and short or vertical swipes leave it closed.
+
+Performance QA visuals confirm that the lazy-loaded homepage, hosting route, and order route keep their intended hierarchy at 375px and 1280px without horizontal overflow. The CSS-only route transition and drawer styles preserve the neon-noir appearance while removing the motion runtime from the initial bundle.

@@ -1,3 +1,13 @@
 /* Reference-led UI refinement: tighter hierarchy, stronger conversion focus, and clearer states. */
 .topbar{height:70px}.topbar-inner{gap:26px}.desktop-nav{gap:17px}.hero-section{padding:60px 0 46px;min-height:510px}.hero-grid{min-height:410px;grid-template-columns:1fr .8fr;gap:12px}.hero-copy{padding-top:3px}.hero-copy h1{max-width:560px}.hero-description{margin:17px 0 15px;max-width:490px}.hero-trust{margin-bottom:16px}.hero-utility{display:flex;align-items:center;justify-content:space-between;max-width:595px;margin-top:12px;color:#858db4;font-size:10px}.hero-utility span{display:flex;align-items:center;gap:6px}.hero-utility i{display:block;width:5px;height:5px;border-radius:50%;background:#6ae8c4;box-shadow:0 0 8px #6ae8c4}.hero-utility a{display:inline-flex;align-items:center;gap:5px;color:#a985ff;font-weight:700}.hero-utility a:hover{color:#ec75d4}.server-world{height:365px}.assurance-item{padding:20px 18px}.section{padding:82px 0}.pricing-section{padding-top:74px}.plan-grid{margin-top:35px;gap:20px}.plan-card{min-height:405px;padding:28px 25px 23px}.plan-card.featured{transform:translateY(-8px)}.annual-note{display:block;color:#78ecc0;font-size:9px;margin-top:3px}.plan-card:hover{border-color:rgba(93,220,255,.48);box-shadow:0 20px 45px rgba(0,0,0,.25);transform:translateY(-3px)}.plan-card.featured:hover{transform:translateY(-10px)}.architecture-section{padding-block:85px}.domain-showcase-card{min-height:328px}.steps-section{padding-top:72px}.subhero{padding:68px 0 55px}.subhero p:not(.eyebrow){margin:13px 0 20px}.availability-panel{margin-top:-13px}.result-list{padding-top:8px}.domain-result{min-height:73px}.order-page{padding-top:56px}.order-header{margin-bottom:0}.order-layout{padding-top:28px}.dashboard-content{max-width:1180px}
 @media(max-width:700px){.topbar{height:64px}.hero-section{padding-top:46px;padding-bottom:23px}.hero-utility{font-size:9px;gap:10px}.hero-utility a{white-space:nowrap}.plan-card:hover,.plan-card.featured:hover{transform:none}.plan-card{min-height:0}.subhero{padding:52px 0 42px}.availability-panel{margin-top:0}.section{padding:59px 0}.order-page{padding-top:42px}}
+
+/* Keep below-the-fold marketing sections cheap during first paint. */
+.pricing-section,
+.architecture-section,
+.domain-showcase,
+.steps-section,
+.cta-banner {
+  content-visibility: auto;
+  contain-intrinsic-size: 560px;
+}

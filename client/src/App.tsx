@@ -1,19 +1,21 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { PageTransition } from "./components/PageTransition";
 import { ThemeProvider } from "./contexts/ThemeContext";
+
+const Home = lazy(() => import("./pages/Home"));
+const Discovery = lazy(() => import("./pages/Discovery"));
+const Order = lazy(() => import("./pages/Order"));
+const Account = lazy(() => import("./pages/Account"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Review = lazy(() => import("./pages/Review"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 import "./refinement.css";
 import "./interactions.css";
 import "./motion.css";
-import Home from "./pages/Home";
-import Discovery from "./pages/Discovery";
-import Order from "./pages/Order";
-import Account from "./pages/Account";
-import Admin from "./pages/Admin";
-import Review from "./pages/Review";
 import "./checkout.css";
 import "./page-transition.css";
 import "./mobile-drawer.css";
@@ -23,9 +25,9 @@ const HostingRoute = () => <Discovery type="hosting" />;
 const ServicesRoute = () => <Discovery type="service" />;
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
+  // Route bundles load on demand so the landing page does not pay for dashboards and review flows.
   return (
-    <PageTransition><Switch>
+    <PageTransition><Suspense fallback={<RouteFallback />}><Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/domains"} component={DomainsRoute} />
       <Route path={"/hosting"} component={HostingRoute} />
@@ -40,8 +42,12 @@ function Router() {
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
-    </Switch></PageTransition>
+    </Switch></Suspense></PageTransition>
   );
+}
+
+function RouteFallback() {
+  return <div className="route-fallback" role="status" aria-live="polite"><span className="route-fallback-orbit" /><p>نجهّز مساحتك…</p></div>;
 }
 
 // NOTE: About Theme

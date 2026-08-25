@@ -1,7 +1,6 @@
 import { Brand } from "@/components/Brand";
 import { Button } from "@/components/ui/button";
 import { resolveDrawerOpenState } from "@/lib/mobileSwipe";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -18,14 +17,21 @@ const navigation = [
 ];
 
 export function PublicLayout({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).get("drawer") === "open");
+  const initialOpen = new URLSearchParams(window.location.search).get("drawer") === "open";
+  const [open, setOpen] = useState(initialOpen);
+  const [drawerMounted, setDrawerMounted] = useState(initialOpen);
   const [location] = useLocation();
-  const shouldReduceMotion = useReducedMotion();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const edgeSwipeRef = useRef<{ x: number; y: number } | null>(null);
   const drawerSwipeRef = useRef<{ x: number; y: number } | null>(null);
   useRevealMotion(location);
+
+  useEffect(() => {
+    if (open) { setDrawerMounted(true); return; }
+    const timeout = window.setTimeout(() => setDrawerMounted(false), 260);
+    return () => window.clearTimeout(timeout);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -50,7 +56,6 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
     return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKeyDown); backgroundState.forEach(({ element, ariaHidden }) => { element.removeAttribute("inert"); if (ariaHidden === null) element.removeAttribute("aria-hidden"); else element.setAttribute("aria-hidden", ariaHidden); }); previouslyFocused?.focus(); };
   }, [open]);
 
-  const drawerTransition = shouldReduceMotion ? { duration: 0 } : { type: "spring" as const, stiffness: 380, damping: 34, mass: 0.72 };
   const startEdgeSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" || window.innerWidth > 700) return;
     edgeSwipeRef.current = { x: event.clientX, y: event.clientY };
@@ -95,17 +100,15 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       {!open && <div className="mobile-edge-swipe-zone" aria-hidden="true" onPointerDown={startEdgeSwipe} onPointerUp={finishEdgeSwipe} onPointerCancel={() => { edgeSwipeRef.current = null; }} />}
-      <AnimatePresence>
-        {open && <>
-          <motion.button className="mobile-nav-scrim" type="button" aria-label="إغلاق القائمة" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.18 }} onClick={() => setOpen(false)} />
-          <motion.aside ref={drawerRef} id="mobile-navigation" className="mobile-nav mobile-nav-drawer" role="dialog" aria-modal="true" aria-label="قائمة Dounvile للجوال" drag="x" dragConstraints={{ left: 0, right: 120 }} dragElastic={0.08} onPointerDown={startDrawerSwipe} onPointerUp={finishDrawerSwipe} onDragEnd={(_, info) => { if (!resolveDrawerOpenState(true, info.offset.x, info.offset.y, info.velocity.x)) setOpen(false); }} initial={shouldReduceMotion ? false : { x: "100%", opacity: 0.7 }} animate={{ x: 0, opacity: 1 }} exit={shouldReduceMotion ? undefined : { x: "100%", opacity: 0.7 }} transition={drawerTransition}>
-            <div className="mobile-drawer-head"><Brand /><button ref={closeButtonRef} type="button" aria-label="إغلاق القائمة" onClick={() => setOpen(false)}><X /></button></div>
-            <p className="mobile-drawer-kicker">انتقل إلى ما تحتاجه</p>
-            <nav className="mobile-drawer-links" aria-label="روابط الجوال">{navigation.map((item, index) => <motion.div key={item.path} initial={shouldReduceMotion ? false : { opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={shouldReduceMotion ? { duration: 0 } : { delay: 0.06 + index * 0.035, duration: 0.24, ease: [0.23, 1, 0.32, 1] }}><Link href={item.path} onClick={() => setOpen(false)}>{item.label}<span>←</span></Link></motion.div>)}</nav>
-            <div className="mobile-drawer-actions"><button onClick={() => { setOpen(false); startLogin(); }}>تسجيل الدخول</button><Link href="/hosting" className="button neon-button" onClick={() => setOpen(false)}>ابدأ الآن</Link></div>
-          </motion.aside>
-        </>}
-      </AnimatePresence>
+      {drawerMounted && <>
+        <button className={`mobile-nav-scrim ${open ? "is-open" : ""}`} type="button" aria-label="إغلاق القائمة" onClick={() => setOpen(false)} />
+        <aside ref={drawerRef} id="mobile-navigation" className={`mobile-nav mobile-nav-drawer ${open ? "is-open" : "is-closing"}`} role="dialog" aria-modal="true" aria-hidden={!open} aria-label="قائمة Dounvile للجوال" onPointerDown={startDrawerSwipe} onPointerUp={finishDrawerSwipe}>
+          <div className="mobile-drawer-head"><Brand /><button ref={closeButtonRef} type="button" aria-label="إغلاق القائمة" onClick={() => setOpen(false)}><X /></button></div>
+          <p className="mobile-drawer-kicker">انتقل إلى ما تحتاجه</p>
+          <nav className="mobile-drawer-links" aria-label="روابط الجوال">{navigation.map((item) => <div key={item.path}><Link href={item.path} onClick={() => setOpen(false)}>{item.label}<span>←</span></Link></div>)}</nav>
+          <div className="mobile-drawer-actions"><button onClick={() => { setOpen(false); startLogin(); }}>تسجيل الدخول</button><Link href="/hosting" className="button neon-button" onClick={() => setOpen(false)}>ابدأ الآن</Link></div>
+        </aside>
+      </>}
       {children}
       <Footer />
     </div>
