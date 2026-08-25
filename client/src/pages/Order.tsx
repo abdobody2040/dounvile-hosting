@@ -1,7 +1,7 @@
 import { PublicLayout } from "@/components/PublicLayout";
 import { Check, ChevronLeft, CircleCheckBig, CreditCard, Globe2, ReceiptText, Server, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import "../order.css";
 
 const plans = [
@@ -17,18 +17,27 @@ type DomainMode = "register" | "existing" | "transfer";
 
 export default function Order() {
   const [location, setLocation] = useLocation();
-  const params = useMemo(() => new URLSearchParams(location.split("?")[1] || ""), [location]);
+  const search = useSearch();
+  const params = useMemo(() => new URLSearchParams(search), [search]);
   const planFromUrl = params.get("plan") || "pro";
   const domainFromUrl = params.get("domain") || "";
   const [selectedPlan, setSelectedPlan] = useState(plans.find((plan) => plan.id === planFromUrl) ?? plans[1]);
   const [domainMode, setDomainMode] = useState<DomainMode>(domainFromUrl ? "register" : "register");
   const [domain, setDomain] = useState(domainFromUrl.replace(/\.[a-z]{2,12}$/i, ""));
+  const [domainVerified, setDomainVerified] = useState(Boolean(domainFromUrl));
   const domainPrice = domainMode === "register" ? 12.99 : 0;
   const total = selectedPlan.price + domainPrice;
+  const currentStep = domainVerified ? 3 : 2;
+  const progress = ((currentStep - 1) / 3) * 100;
+  const stepLabels = ["اختر الخطة", "اختر النطاق", "الحساب", "المراجعة والدفع"];
 
   return <PublicLayout><main className="order-page">
     <section className="container order-header"><div><p className="eyebrow">خطوات بسيطة، بداية أوضح</p><h1>رتّب عالمك الرقمي<br /><em>بالطريقة التي تناسبك.</em></h1></div><Link href="/hosting" className="text-link">العودة إلى الخطط <ChevronLeft size={17} /></Link></section>
-    <div className="container order-steps" aria-label="مراحل الطلب"><span className="done"><i>1</i> اختر الخطة</span><span className="active"><i>2</i> اختر النطاق</span><span><i>3</i> الحساب</span><span><i>4</i> المراجعة والدفع</span></div>
+    <div className="container order-steps" aria-label="مراحل الطلب" role="progressbar" aria-valuemin={1} aria-valuemax={4} aria-valuenow={currentStep} aria-valuetext={`المرحلة الحالية: ${stepLabels[currentStep - 1]}`}>
+      <div className="order-progress-track" aria-hidden="true"><i style={{ transform: `scaleX(${progress / 100})` }} /></div>
+      {stepLabels.map((label, index) => { const step = index + 1; const state = step < currentStep ? "done" : step === currentStep ? "active" : ""; return <span key={label} className={state}><i>{step}</i>{label}</span>; })}
+    </div>
+    <p className="container order-progress-state" role="status">أنت الآن في مرحلة <b>{stepLabels[currentStep - 1]}</b> — أكمل البيانات للمتابعة.</p>
     <section className="container order-layout">
       <div className="order-main">
         <section className="order-section"><div className="order-section-title"><span><Server /></span><div><p>01 — الاستضافة</p><h2>اختر مساحتك</h2></div></div><div className="order-plan-list">{plans.map((plan) => <button key={plan.id} type="button" className={selectedPlan.id === plan.id ? "selected" : ""} aria-pressed={selectedPlan.id === plan.id} onClick={() => setSelectedPlan(plan)}><div><b>{plan.name}</b><small>{plan.description}</small></div><strong>${plan.price}<small>/ شهر</small></strong><i>{selectedPlan.id === plan.id && <Check />}</i></button>)}</div><p className="order-selection-feedback" role="status">تم اختيار <b>{selectedPlan.name}</b> — ${selectedPlan.price.toFixed(2)} شهريًا.</p></section>
@@ -37,7 +46,7 @@ export default function Order() {
           <button type="button" className={domainMode === "existing" ? "selected" : ""} onClick={() => setDomainMode("existing")}><i>{domainMode === "existing" && <Check />}</i><div><b>لدي نطاق بالفعل</b><small>اربط النطاق الحالي باستضافتك الجديدة.</small></div></button>
           <button type="button" className={domainMode === "transfer" ? "selected" : ""} onClick={() => setDomainMode("transfer")}><i>{domainMode === "transfer" && <Check />}</i><div><b>انقل نطاقي إلى Dounvile</b><small>انقل إدارة نطاقك من شركة أخرى.</small></div></button>
         </div>
-        <div className="order-domain-input"><label htmlFor="order-domain">{domainMode === "register" ? "ابحث عن اسمك" : "أدخل اسم نطاقك"}</label><div><input id="order-domain" value={domain} onChange={(event) => setDomain(event.target.value)} placeholder="مثال: mybrand" /><span>.com</span><button type="button">تحقق</button></div>{domainMode === "register" && domain && <p><CircleCheckBig /> <bdi>{domain}.com</bdi> متاح للتسجيل — $12.99 للسنة الأولى.</p>}</div>
+        <div className="order-domain-input"><label htmlFor="order-domain">{domainMode === "register" ? "ابحث عن اسمك" : "أدخل اسم نطاقك"}</label><div><input id="order-domain" value={domain} onChange={(event) => { setDomainVerified(false); setDomain(event.target.value); }} placeholder="مثال: mybrand" /><span>.com</span><button type="button" onClick={() => setDomainVerified(Boolean(domain.trim()))}>{domainVerified ? "تم التحقق" : "تحقق"}</button></div>{domainVerified && domain && <p><CircleCheckBig /> <bdi>{domain}.com</bdi> {domainMode === "register" ? "متاح للتسجيل — $12.99 للسنة الأولى." : "جاهز للربط مع خطتك."}</p>}</div>
         </section>
         <section className="order-security"><ShieldCheck /><div><b>الأمان جزء من البداية.</b><span>تتضمن كل خطة شهادة SSL مجانية ومراقبة أساسية للحماية دون تكاليف مخفية.</span></div></section>
       </div>

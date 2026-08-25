@@ -1,0 +1,21 @@
+/* Motion system: transform/opacity only, with reveal work delegated to IntersectionObserver. */
+:root{--ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1)}
+@media (prefers-reduced-motion:no-preference){
+  [data-reveal]{opacity:0;transform:translateY(22px);transition:opacity .54s var(--ease-out),transform .54s var(--ease-out);transition-delay:var(--reveal-delay,0ms);will-change:opacity,transform}
+  [data-reveal].is-visible{opacity:1;transform:translateY(0)}
+  .plan-card.featured[data-reveal].is-visible{transform:translateY(-8px)}
+  .plan-card[data-reveal].is-visible:hover{transform:translateY(-3px)}.plan-card.featured[data-reveal].is-visible:hover{transform:translateY(-10px)}
+  .domain-result[data-reveal].is-visible:hover{transform:translateY(-2px)}
+  .world-cloud{animation:cloudBreathe 4.8s var(--ease-in-out) infinite}.server-stack span:after{animation:serverBlink 2.2s ease-in-out infinite}.server-stack span:nth-child(2):after{animation-delay:.42s}.server-stack span:nth-child(3):after{animation-delay:.84s}.hero-utility i{animation:quietPulse 2.2s ease-in-out infinite}
+  .neon-button{position:relative;isolation:isolate;overflow:hidden}.neon-button:after{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(108deg,transparent 27%,rgba(255,255,255,.28) 49%,transparent 69%);transform:translateX(125%) skewX(-18deg);transition:transform .52s var(--ease-out)}.neon-button:hover:after{transform:translateX(-125%) skewX(-18deg)}
+  .billing-switch button{transition:background .2s var(--ease-out),color .2s var(--ease-out),transform .16s var(--ease-out)}.billing-switch button:active{transform:scale(.94)}.billing-switch button.active{animation:tabSettle .3s var(--ease-out)}
+  .mobile-menu-button{transition:transform .16s var(--ease-out),border-color .2s ease}.mobile-menu-button:active{transform:scale(.91)}.mobile-menu-button:focus-visible{outline:2px solid #71e8ff;outline-offset:3px}
+  .domain-search:focus-within .domain-input-wrap>svg{transform:scale(1.12);color:#77edff}.domain-input-wrap>svg{transition:transform .18s var(--ease-out),color .18s ease}.order-plan-list button.selected{animation:selectedSettle .32s var(--ease-out)}.order-selection-feedback{animation:feedbackIn .28s var(--ease-out)}
+  @keyframes cloudBreathe{50%{transform:translateX(50%) translateY(-8px) scale(1.025);filter:drop-shadow(0 0 30px rgba(94,126,255,.86))}}
+  @keyframes serverBlink{50%{opacity:.3;box-shadow:0 0 12px #fa5fce}}
+  @keyframes quietPulse{50%{opacity:.35;box-shadow:0 0 14px #6ae8c4;transform:scale(1.4)}}
+  @keyframes tabSettle{from{transform:scale(.93);opacity:.7}to{transform:scale(1);opacity:1}}
+  @keyframes selectedSettle{from{box-shadow:0 0 0 0 rgba(228,92,210,0)}50%{box-shadow:0 0 0 4px rgba(228,92,210,.14)}to{box-shadow:0 0 0 0 rgba(228,92,210,0)}}
+  @keyframes feedbackIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
